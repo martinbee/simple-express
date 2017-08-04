@@ -1,5 +1,6 @@
 import express from 'express';
 import fs from 'fs';
+import engines from 'consolidate';
 import { startCase } from 'lodash';
 
 const users = [];
@@ -18,13 +19,13 @@ fs.readFile('./data/users.json', { encoding: 'utf8' }, (err, data) => {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-  const buffer = users.reduce((buffer, user) => (
-    buffer + `<a href="${user.username}">${user.name.full}<br/></a>`
-  ), '');
+app.engine('hbs', engines.handlebars);
 
-  res.send(buffer);
-});
+app.set('views', './views');
+//app.set('view engine', 'jade');
+app.set('view engine', 'hbs');
+
+app.get('/', (req, res) => res.render('index', { users: users }));
 
 app.get(/big.*./, (req, res, next) => {
   console.log('BIG USER ACCESS');
